@@ -37,13 +37,6 @@ model X3AWithRadiantFloor "Example model showing a use of X3A"
     "Inlet water temperature into the four slabs (all the same)"
     annotation (Placement(transformation(extent={{-342,-170},{-302,-130}})));
 
-  Buildings.Rooms.FLEXLAB.Rooms.X3A.TestCell X3A(
-    nPorts=2,
-    redeclare package Medium = Air,
-    linearizeRadiation=false,
-    energyDynamics=Modelica.Fluid.Types.Dynamics.FixedInitial,
-    extConMod=Buildings.HeatTransfer.Types.ExteriorConvection.Fixed)
-              annotation (Placement(transformation(extent={{-50,38},{-10,78}})));
   Buildings.Fluid.Sources.MassFlowSource_T airIn(
     use_m_flow_in=true,
     use_T_in=true,
@@ -53,6 +46,53 @@ model X3AWithRadiantFloor "Example model showing a use of X3A"
   Buildings.Fluid.Sources.Boundary_pT
     airOut(nPorts=1, redeclare package Medium = Air) "Air outlet for X3A"
     annotation (Placement(transformation(extent={{-98,24},{-78,44}})));
+protected
+   Buildings.BoundaryConditions.SolarGeometry.BaseClasses.Declination
+                                         decAng "Declination angle"
+    annotation (Placement(transformation(extent={{-90,280},{-70,300}})));
+   Buildings.BoundaryConditions.SolarGeometry.BaseClasses.SolarHourAngle
+    solHouAng
+    annotation (Placement(transformation(extent={{-90,250},{-70,270}})));
+   Buildings.BoundaryConditions.SolarGeometry.BaseClasses.ZenithAngle
+                                         zenAng(final lat=latitude)
+    "Zenith angle"
+    annotation (Placement(transformation(extent={{-30,274},{-10,294}})));
+  Buildings.BoundaryConditions.SolarGeometry.BaseClasses.AltitudeAngle
+                                          altAng "Solar altitude angle"
+    annotation (Placement(transformation(extent={{20,218},{40,238}})));
+  Buildings.BoundaryConditions.WeatherData.BaseClasses.SolarTime
+                        solTim "Solar time"
+    annotation (Placement(transformation(extent={{-30,360},{-10,380}})));
+  Buildings.BoundaryConditions.WeatherData.BaseClasses.LocalCivilTime locTim(
+                     final timZon=timZon, final lon=longitude)
+    "Local civil time"
+    annotation (Placement(transformation(extent={{-66,340},{-46,360}})));
+  Buildings.Utilities.Time.ModelTime
+                           modTim "Model time"
+    annotation (Placement(transformation(extent={{-140,400},{-120,420}})));
+public
+  Buildings.BoundaryConditions.WeatherData.Bus weaBus annotation (Placement(
+        transformation(extent={{-154,124},{-114,164}}), iconTransformation(
+          extent={{-800,96},{-780,116}})));
+protected
+  Buildings.BoundaryConditions.WeatherData.BaseClasses.EquationOfTime
+                             eqnTim "Equation of time"
+    annotation (Placement(transformation(extent={{-70,380},{-50,400}})));
+public
+  Modelica.Blocks.Sources.Constant zer(k=0)
+    annotation (Placement(transformation(extent={{-200,160},{-180,180}})));
+  Modelica.Blocks.Sources.Constant lat(k=latitude) "Latitude"
+    annotation (Placement(transformation(extent={{-200,112},{-180,132}})));
+  Modelica.Blocks.Sources.Constant lon(k=longitude) "Longitude"
+    annotation (Placement(transformation(extent={{-200,74},{-180,94}})));
+protected
+  Buildings.Rooms.FLEXLAB.Rooms.X3A.TestCell X3A(
+    nPorts=2,
+    redeclare package Medium = Air,
+    linearizeRadiation=false,
+    energyDynamics=Modelica.Fluid.Types.Dynamics.FixedInitial,
+    extConMod=Buildings.HeatTransfer.Types.ExteriorConvection.Fixed)
+              annotation (Placement(transformation(extent={{-50,38},{-10,78}})));
   Buildings.Fluid.HeatExchangers.RadiantSlabs.SingleCircuitSlab sla4A1(
     sysTyp=Buildings.Fluid.HeatExchangers.RadiantSlabs.Types.SystemType.Floor,
     iLayPip=1,
@@ -127,6 +167,7 @@ model X3AWithRadiantFloor "Example model showing a use of X3A"
     redeclare package Medium = Water)
     "Inlet water conditions (from central plant)"
     annotation (Placement(transformation(extent={{-146,-100},{-126,-80}})));
+protected
   Buildings.Fluid.HeatExchangers.RadiantSlabs.SingleCircuitSlab sla4A2(
     sysTyp=Buildings.Fluid.HeatExchangers.RadiantSlabs.Types.SystemType.Floor,
     iLayPip=1,
@@ -208,7 +249,7 @@ model X3AWithRadiantFloor "Example model showing a use of X3A"
   Modelica.Blocks.Routing.DeMultiplex4 deMultiplex4_1
     "Mass flow rate demultiplex"
     annotation (Placement(transformation(extent={{-280,-110},{-260,-90}})));
-
+public
   Modelica.Thermal.HeatTransfer.Sensors.TemperatureSensor TRoo
     "Room air temperature sensor"
     annotation (Placement(transformation(extent={{12,50},{32,70}})));
@@ -221,45 +262,7 @@ model X3AWithRadiantFloor "Example model showing a use of X3A"
   Modelica.Blocks.Interfaces.RealOutput TSlabSur[4](unit="K")
     "Slab surface temperature"
     annotation (Placement(transformation(extent={{200,-30},{220,-10}})));
-protected
-   Buildings.BoundaryConditions.SolarGeometry.BaseClasses.Declination
-                                         decAng "Declination angle"
-    annotation (Placement(transformation(extent={{-90,280},{-70,300}})));
-   Buildings.BoundaryConditions.SolarGeometry.BaseClasses.SolarHourAngle
-    solHouAng
-    annotation (Placement(transformation(extent={{-90,250},{-70,270}})));
-   Buildings.BoundaryConditions.SolarGeometry.BaseClasses.ZenithAngle
-                                         zenAng(final lat=latitude)
-    "Zenith angle"
-    annotation (Placement(transformation(extent={{-30,274},{-10,294}})));
-  Buildings.BoundaryConditions.SolarGeometry.BaseClasses.AltitudeAngle
-                                          altAng "Solar altitude angle"
-    annotation (Placement(transformation(extent={{20,218},{40,238}})));
-  Buildings.BoundaryConditions.WeatherData.BaseClasses.SolarTime
-                        solTim "Solar time"
-    annotation (Placement(transformation(extent={{-30,360},{-10,380}})));
-  Buildings.BoundaryConditions.WeatherData.BaseClasses.LocalCivilTime locTim(
-                     final timZon=timZon, final lon=longitude)
-    "Local civil time"
-    annotation (Placement(transformation(extent={{-66,340},{-46,360}})));
-  Buildings.Utilities.Time.ModelTime
-                           modTim "Model time"
-    annotation (Placement(transformation(extent={{-140,400},{-120,420}})));
-public
-  Buildings.BoundaryConditions.WeatherData.Bus weaBus annotation (Placement(
-        transformation(extent={{-154,124},{-114,164}}), iconTransformation(
-          extent={{-800,96},{-780,116}})));
-protected
-  Buildings.BoundaryConditions.WeatherData.BaseClasses.EquationOfTime
-                             eqnTim "Equation of time"
-    annotation (Placement(transformation(extent={{-70,380},{-50,400}})));
-public
-  Modelica.Blocks.Sources.Constant zer(k=0)
-    annotation (Placement(transformation(extent={{-200,160},{-180,180}})));
-  Modelica.Blocks.Sources.Constant lat(k=latitude) "Latitude"
-    annotation (Placement(transformation(extent={{-200,112},{-180,132}})));
-  Modelica.Blocks.Sources.Constant lon(k=longitude) "Longitude"
-    annotation (Placement(transformation(extent={{-200,74},{-180,94}})));
+
 equation
   connect(airIn.ports[1], X3A.ports[1]) annotation (Line(
       points={{-80,60},{-72,60},{-72,46},{-45,46}},
